@@ -232,45 +232,64 @@ def renew_via_browser(username, password):
 
             print("✓ Web应用页面加载完成")
             
-            # 步骤6: 查找续期按钮 - 增强版
+            # 步骤6: 查找续期按钮 - 使用多种方法
             print("步骤6: 查找续期按钮...")
 
-            # 多次尝试查找按钮（处理动态加载）
             renew_button = None
-            max_attempts = 5
 
-            for attempt in range(max_attempts):
-                print(f"查找按钮尝试 {attempt + 1}/{max_attempts}...")
-
-                all_buttons = page.query_selector_all("button, input[type='submit']")
-                print(f"找到 {len(all_buttons)} 个按钮元素")
-
-                # 查找续期按钮
-                for btn in all_buttons:
-                    try:
-                        text = (btn.text_content() or "").strip()
-                        value = (btn.get_attribute("value") or "").strip()
-                        full_text = f"{text} {value}".strip()
-
-                        # 多种匹配条件
-                        if ("Run until 3 months from today" in full_text or
-                            "Run until" in full_text and "months" in full_text):
-                            renew_button = btn
-                            print(f"✓ 找到续期按钮: '{full_text}'")
-                            break
-                    except Exception as e:
-                        continue
-
+            # 方法1: 使用精确的CSS选择器（最优先）
+            try:
+                css_selector = "input[type='submit'][class='btn btn-warning webapp_extend'][value='Run until 3 months from today']"
+                renew_button = page.wait_for_selector(css_selector, timeout=10000)
                 if renew_button:
-                    break
+                    print("✓ 使用精确CSS选择器找到续期按钮")
+                    try:
+                        tag_name = renew_button.evaluate("el => el.tagName.toLowerCase()")
+                        input_type = renew_button.get_attribute("type")
+                        input_value = renew_button.get_attribute("value")
+                        input_class = renew_button.get_attribute("class")
+                        print(f"元素信息: {tag_name} type='{input_type}' value='{input_value}' class='{input_class}'")
+                    except Exception as e:
+                        print(f"获取元素信息失败: {e}")
+            except Exception as e:
+                print(f"精确CSS选择器失败: {e}")
 
-                # 如果没找到，等待更长时间再试
-                if attempt < max_attempts - 1:
-                    print("未找到按钮，等待页面加载更多内容...")
-                    page.wait_for_timeout(3000)
+            # 方法2: 通过value属性查找
+            if not renew_button:
+                try:
+                    renew_button = page.wait_for_selector("input[value='Run until 3 months from today']", timeout=5000)
+                    if renew_button:
+                        print("✓ 通过value属性找到续期按钮")
+                except Exception as e:
+                    print(f"value属性查找失败: {e}")
+
+            # 方法3: 通过class查找
+            if not renew_button:
+                try:
+                    renew_button = page.wait_for_selector("input.webapp_extend", timeout=5000)
+                    if renew_button:
+                        print("✓ 通过class找到续期按钮")
+                except Exception as e:
+                    print(f"class查找失败: {e}")
+
+            # 方法4: 遍历所有input元素查找
+            if not renew_button:
+                try:
+                    all_inputs = page.query_selector_all("input[type='submit']")
+                    for input_elem in all_inputs:
+                        try:
+                            value = input_elem.get_attribute("value") or ""
+                            if "Run until" in value and "months" in value:
+                                renew_button = input_elem
+                                print(f"✓ 通过遍历找到续期按钮: {value}")
+                                break
+                        except:
+                            continue
+                except Exception as e:
+                    print(f"遍历查找失败: {e}")
 
             if not renew_button:
-                return False, "在多次尝试后仍未找到续期按钮"
+                return False, "使用所有方法都未找到续期按钮"
 
             # 步骤7: 点击续期按钮
             print("步骤7: 点击续期按钮...")
@@ -323,9 +342,13 @@ def renew_via_browser(username, password):
 
 
 def main():
+    print("DEBUG: main() 函数开始执行")
     username = os.getenv("PYTHONANYWHERE_USERNAME")
     password = os.getenv("PYTHONANYWHERE_PASSWORD")
-    
+
+    print(f"DEBUG: 用户名 = {username}")
+    print(f"DEBUG: 密码 = {'*' * len(password) if password else 'None'}")
+
     if not username or not password:
         print("错误: 请设置环境变量 PYTHONANYWHERE_USERNAME 和 PYTHONANYWHERE_PASSWORD")
         sys.exit(1)
