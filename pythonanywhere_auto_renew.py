@@ -99,10 +99,9 @@ def renew_via_browser(username, password):
     print("使用浏览器自动化方式...")
     
     with sync_playwright() as p:
-        # 在GitHub Actions中使用headless模式
-        headless_mode = os.getenv("HEADLESS", "true").lower() == "true"
+        # 在GitHub Actions中必须使用headless模式
         browser = p.chromium.launch(
-            headless=headless_mode,
+            headless=True,
             args=[
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
