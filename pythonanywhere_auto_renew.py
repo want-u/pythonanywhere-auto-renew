@@ -32,7 +32,7 @@ headers = {
 # 1、获取登录页面 - csrfmiddlewaretoken
 url = "https://www.pythonanywhere.com/login/"
 response = session.get(url, headers=headers)
-print(response)
+print("1、获取登录页面 - csrfmiddlewaretoken", response)
 
 s = response.text
 # name="csrfmiddlewaretoken" value="rZhgV59Z9z1Q80Yw5XrLCEOe3e5wZYLIZp6ppbBluH4izIXVXVD7uc39wyhHgXPn"
@@ -55,13 +55,13 @@ data = {
 }
 response = session.post(url, headers=headers, data=data)
 # print(response.text)
-print(response)
+print("提交登录表单", response)
 
 # 3、获取webapps页面 - csrfmiddlewaretoken
 url = "https://www.pythonanywhere.com/user/%s/webapps/" % username
 response = session.get(url, headers=headers)
 # print(response.text)
-print(response)
+print("获取webapps页面 - csrfmiddlewaretoken", response)
 
 s = response.text
 csrfmiddlewaretoken_start = 'name="csrfmiddlewaretoken" value="'
@@ -78,6 +78,6 @@ url = "https://www.pythonanywhere.com/user/%s/webapps/%s.pythonanywhere.com/exte
 data = {"csrfmiddlewaretoken": csrfmiddlewaretoken}
 response = session.post(url, headers=headers, data=data)
 # print(response.text)
-print(response)
+print("4、进行网站续期", response)
 
 print("DEBUG: 自动续期完成!")
