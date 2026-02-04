@@ -362,7 +362,7 @@ def main():
     
     # 直接使用浏览器自动化（API方法暂时跳过）
     print("[浏览器自动化] 开始续期流程...")
-    success, message = renew_via_browser(username, password)
+    success, message = renew_via_api(username, password)
     
     print("\n" + "=" * 60)
     if success:
