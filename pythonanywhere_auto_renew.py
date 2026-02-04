@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 
 print("DEBUG: 开始执行")
@@ -44,6 +45,7 @@ csrfmiddlewaretoken = s[val_start:val_end]
 
 # 打印结果
 print("csrfmiddlewaretoken:", csrfmiddlewaretoken)
+time.sleep(1.5)
 
 # 2、提交登录表单
 url = "https://www.pythonanywhere.com/login/"
@@ -55,13 +57,17 @@ data = {
 }
 response = session.post(url, headers=headers, data=data)
 # print(response.text)
-print("提交登录表单", response)
+print("2、提交登录表单", response)
+
+if response.status_code != 200:
+    exit(403)
+time.sleep(1.5)
 
 # 3、获取webapps页面 - csrfmiddlewaretoken
 url = "https://www.pythonanywhere.com/user/%s/webapps/" % username
 response = session.get(url, headers=headers)
 # print(response.text)
-print("获取webapps页面 - csrfmiddlewaretoken", response)
+print("3、获取webapps页面 - csrfmiddlewaretoken", response)
 
 s = response.text
 csrfmiddlewaretoken_start = 'name="csrfmiddlewaretoken" value="'
@@ -70,6 +76,8 @@ val_start = value_key_index + len(csrfmiddlewaretoken_start)
 val_end = s.find('"', val_start)
 csrfmiddlewaretoken = s[val_start:val_end]
 print("csrfmiddlewaretoken:", csrfmiddlewaretoken)
+time.sleep(1.5)
+
 # 4、进行网站续期
 url = "https://www.pythonanywhere.com/user/%s/webapps/%s.pythonanywhere.com/extend" % (
     username,
