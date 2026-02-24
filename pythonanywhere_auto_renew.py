@@ -94,7 +94,7 @@ for u in zip(usernames.split(","), passwords.split(",")):
     response = session.post(url, headers=headers, data=data)
     # print(response.text)
     print("4、进行网站续期", response)
-
     print("DEBUG: 自动续期完成!")
+    time.sleep(1.5)
 
 print("自动续期完成!!!")
