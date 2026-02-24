@@ -4,7 +4,7 @@ name: PythonAnywhere Auto Renew
 on:
   schedule:
     # 每两个月的第1天执行（1月、3月、5月、7月、9月、11月）
-    - cron: '11 10 1 * *'
+    - cron: '11 10 * * 1'
   workflow_dispatch:  # 允许手动触发
 
 permissions:
